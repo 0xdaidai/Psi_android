@@ -127,7 +127,7 @@ public class Utils {
 
     public static void receiveFile(DataInputStream d_in, File file, long size) {
         try {
-            Log.d("receiveFile: ", file.getAbsolutePath()+file.exists());
+            Log.d("Utils-receiveFile: ", file.getAbsolutePath()+file.exists());
             ////////////
 
             FileOutputStream f_out = new FileOutputStream(file);
@@ -148,11 +148,12 @@ public class Utils {
                 if (remaining < count) {
                     count = (int)remaining;
                 }
-                Log.d("receiveFile",size + "------------------Download:" + totalRead + " bytes-----------" + file.getPath());
+                Log.d("Utils-receiveFile",size + "------------------Download:" + totalRead + " bytes-----------" + file.getPath());
                 f_out.write(buffer, 0, read);
-                Log.d("receiveFileString",buffer.toString());
+                Log.d("Utils-receiveFileString",buffer.toString());
             }
             f_out.close();
+            Log.d("Utils-file_receive","receive end!");
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -116,12 +116,14 @@ public class PSIRSA implements PSI {
         for (int i = 0; i < size; i ++) {
             String s = new String("136");
             BigInteger h = Utils.stringToBigInteger(s+String.format("%08d",i));
+            //BigInteger h = new BigInteger(s+String.format("%08d",i),10);
+            System.out.println(h.toString());
             BigInteger z = h.modPow(d, N);
 	/*	   	bug: data change after writting to a file
 	  		if (i == 123) {
 		   		System.out.println(z.toString());
 		   	}*/
-            System.out.println(Utils.bigIntegerToBytes(z, false).length);
+            //System.out.println(Utils.bigIntegerToBytes(z, false).length);
             Utils.writeLineToFile(DB, Utils.bigIntegerToBytes(z, false), i, size);
         }
         //	Utils.readFileAndTest((new byte[128]), DB, 128);

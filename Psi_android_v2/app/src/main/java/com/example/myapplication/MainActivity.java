@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 活动初始化，包括控件的指定和设置监听等
         activityInit();
 
-        Log.d("Rootdir in null?",rootDir);
+        Log.d("MainActivity-Oncreate","new psi,dir is:"+rootDir);
         psi = new PSIRSA(rootDir);
         // base准备
         basePhase();
@@ -119,15 +119,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void handleMessage(Message msg) {
                 if (msg.arg1 == TOAST_DB_loaded) {
-                    Toast.makeText(MainActivity.this, "DB has been downloaded!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "DB has been downloaded!", Toast.LENGTH_SHORT).show();
                 } else if (msg.arg1 == TOAST_APP_empty) {
-                    Toast.makeText(MainActivity.this, "Please input an App!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Please input an App!", Toast.LENGTH_SHORT).show();
                 } else if (msg.arg1 == TOAST_DB_empty) {
-                    Toast.makeText(MainActivity.this, "Please load DB first!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Please load DB first!", Toast.LENGTH_SHORT).show();
                 } else if (msg.arg1 == TOAST_Malware) {
-                    Toast.makeText(MainActivity.this, "This is a malware!!!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "This is a malware!!!", Toast.LENGTH_SHORT).show();
+                    Log.d("MainActivity-RESULT FOR PSI","Yes I hava found one! at least");
                 } else if (msg.arg1 == TOAST_NOT_Malware) {
-                    Toast.makeText(MainActivity.this, "This is a secure APP!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "This is a secure APP!", Toast.LENGTH_SHORT).show();
                 }
             }
         };
@@ -195,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void activityInit() {
-        Log.d("主界面-activityInit", "初始化控件");
+        Log.d("MainActivity-activityInit", "初始化控件");
         // 控件的指定
         //btn_getKey = findViewById(R.id.button_getKey);
         btn_compute = findViewById(R.id.button_compute);
@@ -236,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return false;
             }
         });
-        Log.d("主界面-activityInit", "初始化完毕");
+        Log.d("MainActivity-activityInit", "初始化完毕");
     }
 
 
@@ -248,9 +249,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_CONTACTS)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, 201);
-            Log.d("主界面-check", "正在获取权限");
+            Log.d("MainActivity-check", "正在获取权限");
         } else {
-            Log.d("主界面-check", "已拥有权限");
+            Log.d("MainActivity-check", "已拥有权限");
         }
     }
 
@@ -258,9 +259,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 201) {
-            Log.d("主界面-RequestPermissions", "获取权限成功");
+            Log.d("MainActivity-RequestPermissions", "获取权限成功");
         } else {
-            Log.d("主界面-RequestPermissions", "获取权限失败");
+            Log.d("MainActivity-RequestPermissions", "获取权限失败");
             Toast.makeText(MainActivity.this, "请重新获取权限", Toast.LENGTH_SHORT).show();
         }
     }
@@ -278,10 +279,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dataWriter("phonenum.txt", "", Context.MODE_PRIVATE);
         for (PhoneNumData data : dataList) {
             num = data.getNum().replace(" ", "").substring(3);
+            Log.d("MainActivity-dataInit","phonenum:"+num);
             numList.add(num);
             dataWriter("phonenum.txt", num + "\n", Context.MODE_APPEND);
         }
-        Log.d("主界面-dataInit", "写入联系人信息");
+        Log.d("MainActivity-dataInit", "写入联系人信息");
         deleteProgressDialog();
     }
 
@@ -313,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     // TODO: 数据更新
     private void getUpdate() {
-        Log.d("主界面-getUpdate", "检查更新");
+        Log.d("MainActivity-getUpdate", "检查更新");
         setProgressDialog("", "正在检查服务器端数据更新");
         boolean checkResult = serverDataCheck();
         deleteProgressDialog();
@@ -332,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             setProgressDialog("", "正在更新数据");
             serverDataUpdate();
             deleteProgressDialog();
-            Log.d("主界面-getUpdate", "需要更新");
+            Log.d("MainActivity-getUpdate", "需要更新");
         } else {
             alertDialog.setMessage("服务器端数据没有更改，无需数据更新");
             alertDialog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -341,7 +343,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             });
             alertDialog.show();
-            Log.d("主界面-getUpdate", "无需更新");
+            Log.d("MainActivity-getUpdate", "无需更新");
         }
         Log.d("主界面-getUpdate", "检查完毕");
     }
@@ -429,9 +431,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FileInputStream in = null;
         BufferedReader reader = null;
         try {
-            File file = new File("filenum.txt");
+            File file = new File(rootDir+"/phonenum.txt");
             if(file.exists() && file.length() == 0) {
-                System.out.println("文件为空！");
+                Log.d("MainActivity-onlinePhase","open file failed!");
                 callMainThread(TOAST_APP_empty);
             } else if (psi.getDBSize() == 0) {
                 callMainThread(TOAST_DB_empty);
@@ -439,7 +441,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 in = new FileInputStream(file);
                 reader = new BufferedReader(new InputStreamReader(in));
                 while ((app = reader.readLine()) != null) {
+                    Log.d("MainActivity-onlinePhase","QUERY: "+app);
                     callServer(app, "QUERY");
+                    for(int time = 0;time<500;time++);/////////////////////////
                 }
             }
 
@@ -459,17 +463,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void callServer(String app, String type) {
         try {
             inetAddress = InetAddress.getByName(IP);
-            Log.d("inetAddress",inetAddress.toString());
+            Log.d("MainActivity-callServer","inetAddress:"+inetAddress.toString());
             socket = new Socket(inetAddress, PORT);
-            Log.d("MainActivity","socket success!");
-            Log.d("SendType","before");
             Utils.sendString(socket, type);
-            Log.d("SendType","after");
             if (type.equals("DB")) {
                 //callMainThread(TOAST_DB_loaded);
-                Log.d("DownloadDB","before");
                 psi.downloadDB(socket);
-                Log.d("DownloadDB","after");
                 //callMainThread(TOAST_DB_loaded);
             } else if (type.equals("QUERY")) {
                 if (psi.sendQuery(app, socket)) {
@@ -513,8 +512,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * @param mode     模式（追加/覆盖）
      */
     private void dataWriter(String filename, String data, int mode) {
+
         FileOutputStream out = null;
         BufferedWriter writer = null;
+        Log.d("MainActivity-DataWriter",filename);
         try {
             if (mode == Context.MODE_APPEND) {
                 out = openFileOutput(filename, Context.MODE_APPEND);

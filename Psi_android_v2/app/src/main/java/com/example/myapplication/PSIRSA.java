@@ -17,14 +17,14 @@ public class PSIRSA implements PSI {
 
     public PSIRSA() {
         DB = new File(Environment.getExternalStorageDirectory(), "/MalwareDB");
-        Log.d("Where is DB?", DB.getAbsolutePath() + "\n" + DB.exists());
+        Log.d("PSIRSA-PSIRSA()", "Where is DB?"+DB.getAbsolutePath() + "\n" + DB.exists());
         DB_size = 0;
 
     }
 
     public PSIRSA(String dir) {
         DB = new File(dir+"/MalwareDB");
-        Log.d("Where is DB?", DB.getAbsolutePath() + "\n" + DB.exists());
+        Log.d("PSIRSA-PSIRSA(dir)", "Where is DB?"+DB.getAbsolutePath() + "\n" + DB.exists());
         DB_size = 0;
 
     }
@@ -60,13 +60,11 @@ public class PSIRSA implements PSI {
 
 */
         try {
-            Log.d("pk", "before");
             byte[][] pk = Utils.receive2DBytes(socket);
-            Log.d("pk", "after");
             e = Utils.bytesToBigInteger(pk[0], 0, pk[0].length);
             N = Utils.bytesToBigInteger(pk[1], 0, pk[1].length);
-            Log.d("pubK-e: ", e.toString());
-            Log.d("pubK_N ", N.toString());
+            Log.d("PSIRSA-downloadDB ","pubK-e: "+ e.toString());
+            Log.d("PSIRSA-downloadDB ", "pubK_N: "+N.toString());
             DataInputStream d_in = new DataInputStream(socket.getInputStream());
             DB_size = Utils.receiveInteger(d_in);
 
@@ -97,6 +95,8 @@ public class PSIRSA implements PSI {
     public boolean sendQuery(String s, Socket socket) {
         startTime = System.currentTimeMillis();
 
+        //BigInteger h = new BigInteger(s,10);
+        Log.d("PSIRSA-sendQuery",s);
         BigInteger h = Utils.stringToBigInteger(s);
         generateBlindingFactor();
         BigInteger x = h.multiply(blindFactor.modPow(e, N)).mod(N);

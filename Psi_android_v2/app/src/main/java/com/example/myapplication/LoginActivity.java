@@ -93,7 +93,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     //判断输入的手机号是否满足格式要求
     private boolean isTelNumber(String tel) {
         //正则表达式判断输入手机号是否合法
-        String regex = "^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,2,5-9]))\\d{8}$";
+        String regex = "^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,2,5-9]))|(19[0-9])\\d{8}$";
         return Pattern.matches(regex, tel);
     }
 
