@@ -44,8 +44,11 @@ public class PSIRSA implements PSI {
         }
 
         Utils.send2DBytes(socket, getPK());
+        System.out.println("Send PK!");
 		Utils.sendInteger(d_out, DB.length());
+        System.out.println("Send DN Length!");
 		Utils.sendFile(d_out, DB);
+        System.out.println("Send DB!");
         //Utils.sendString(socket, s);
     }
 

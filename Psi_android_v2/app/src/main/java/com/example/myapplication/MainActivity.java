@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btn_logout;
     private String rootDir;
 
-    private final String IP = "127.0.0.1";
+    private final String IP = "10.0.2.2";
     private final int PORT = 12345;
     private Socket socket = null;
     private InetAddress inetAddress;
@@ -83,7 +84,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ///////////
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                .detectDiskReads().detectDiskWrites().detectNetwork()
+                .penaltyLog().build());
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                .detectLeakedSqlLiteObjects().detectLeakedClosableObjects()
+                .penaltyLog().penaltyDeath().build());
+        //////////////
         super.onCreate(savedInstanceState);
+        psi = new PSIRSA();
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
@@ -99,8 +109,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getUpdate();
         // 测试
         test();
-
-        psi = new PSIRSA();
 
         handler = new Handler(Looper.getMainLooper()) {
             @Override
@@ -448,13 +456,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d("inetAddress",inetAddress.toString());
             socket = new Socket(inetAddress, PORT);
             Log.d("MainActivity","socket success!");
-
+            Log.d("SendType","before");
             Utils.sendString(socket, type);
+            Log.d("SendType","after");
             if (type.equals("DB")) {
-                //     	Utils.sendString(socket, type);
-                callMainThread(TOAST_DB_loaded);
+                //callMainThread(TOAST_DB_loaded);
+                Log.d("DownloadDB","before");
                 psi.downloadDB(socket);
-                callMainThread(TOAST_DB_loaded);
+                Log.d("DownloadDB","after");
+                //callMainThread(TOAST_DB_loaded);
             } else if (type.equals("QUERY")) {
                 if (psi.sendQuery(app, socket)) {
                     callMainThread(TOAST_Malware);

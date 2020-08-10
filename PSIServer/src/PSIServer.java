@@ -7,7 +7,8 @@ public class PSIServer {
     private static ServerSocket serverSocket;
     private static InetAddress inetAddress;
 
-    private static final int DB_SIZE = (int)Math.pow(2, 15);
+    //private static final int DB_SIZE = (int)Math.pow(2, 15);
+    private static final int DB_SIZE = (int)Math.pow(2, 8);
 
     public static void main(String[] args) {
         psi = new PSIRSA(DB_SIZE);

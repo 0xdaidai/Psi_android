@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.annotation.SuppressLint;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -51,11 +52,13 @@ public class PSIRSA implements PSI {
 
 */
 		try {
+		    Log.d("pk","before");
 			byte[][] pk = Utils.receive2DBytes(socket);
+            Log.d("pk","after");
 			e = Utils.bytesToBigInteger(pk[0], 0, pk[0].length);
 			N = Utils.bytesToBigInteger(pk[1], 0, pk[1].length);
-			// Log.v("", e.toString());
-			// Log.v("", N.toString());
+			Log.v("", e.toString());
+			Log.v("", N.toString());
 			DataInputStream d_in = new DataInputStream(socket.getInputStream());
 			DB_size = Utils.receiveInteger(d_in);
 			Utils.receiveFile(d_in, DB, DB_size);
