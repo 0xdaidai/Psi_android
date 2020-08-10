@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">PSI</string>
+    <string name="TextView_getKey">是否已分配公钥</string>
+    <string name="Button_getKey">获取公钥</string>
+    <string name="Button_compute">开始计算</string>
+    <string name="label_username">用户名</string>
+    <string name="text_telNum">手机号</string>
+    <string name="label_verifyCode">验证码</string>
+    <string name="text_verifyCode">验证码</string>
+    <string name="button_sendCode">发送验证码</string>
+    <string name="button_login">登录</string>
+    <string name="logout">退出登录</string>
+</resources>
