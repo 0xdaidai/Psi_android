@@ -17,6 +17,14 @@ public class PSIRSA implements PSI {
 
     public PSIRSA() {
         DB = new File(Environment.getExternalStorageDirectory(), "/MalwareDB");
+        Log.d("Where is DB?", DB.getAbsolutePath() + "\n" + DB.exists());
+        DB_size = 0;
+
+    }
+
+    public PSIRSA(String dir) {
+        DB = new File(dir+"/MalwareDB");
+        Log.d("Where is DB?", DB.getAbsolutePath() + "\n" + DB.exists());
         DB_size = 0;
 
     }
@@ -51,21 +59,24 @@ public class PSIRSA implements PSI {
 		System.out.println("---------bloom filter--------Time used:" + (System.currentTimeMillis() - startTime));
 
 */
-		try {
-		    Log.d("pk","before");
-			byte[][] pk = Utils.receive2DBytes(socket);
-            Log.d("pk","after");
-			e = Utils.bytesToBigInteger(pk[0], 0, pk[0].length);
-			N = Utils.bytesToBigInteger(pk[1], 0, pk[1].length);
-			Log.v("", e.toString());
-			Log.v("", N.toString());
-			DataInputStream d_in = new DataInputStream(socket.getInputStream());
-			DB_size = Utils.receiveInteger(d_in);
-			Utils.receiveFile(d_in, DB, DB_size);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        try {
+            Log.d("pk", "before");
+            byte[][] pk = Utils.receive2DBytes(socket);
+            Log.d("pk", "after");
+            e = Utils.bytesToBigInteger(pk[0], 0, pk[0].length);
+            N = Utils.bytesToBigInteger(pk[1], 0, pk[1].length);
+            Log.d("pubK-e: ", e.toString());
+            Log.d("pubK_N ", N.toString());
+            DataInputStream d_in = new DataInputStream(socket.getInputStream());
+            DB_size = Utils.receiveInteger(d_in);
+
+            Utils.receiveFile(d_in, DB, DB_size);
+
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 /*
         startTime = System.currentTimeMillis();
         String s = Utils.receiveString(socket);
@@ -121,11 +132,12 @@ public class PSIRSA implements PSI {
         BigInteger ONE = BigInteger.valueOf(1);
         int length = N.bitLength() - 1;
         BigInteger gcd;
-        do
-        {
+        do {
             blindFactor = new BigInteger(length, new SecureRandom());
             gcd = blindFactor.gcd(N);
         }
         while (blindFactor.equals(ZERO) || blindFactor.equals(ONE) || !gcd.equals(ONE));
     }
+
+
 }

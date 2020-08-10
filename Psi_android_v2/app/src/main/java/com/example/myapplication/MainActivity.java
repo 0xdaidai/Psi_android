@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,6 +15,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -93,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .penaltyLog().penaltyDeath().build());
         //////////////
         super.onCreate(savedInstanceState);
-        psi = new PSIRSA();
+
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
@@ -103,6 +105,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         checkForPermission();
         // 活动初始化，包括控件的指定和设置监听等
         activityInit();
+
+        Log.d("Rootdir in null?",rootDir);
+        psi = new PSIRSA(rootDir);
         // base准备
         basePhase();
         // 检查数据的更新
@@ -380,6 +385,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
          */
+
         callServer(new String(""),"DB");
         deleteProgressDialog();
 
@@ -569,5 +575,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return new Pair<>(content.toString(), lineNum);
     }
 
-
 }
+

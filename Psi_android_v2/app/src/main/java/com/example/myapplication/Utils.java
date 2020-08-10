@@ -1,6 +1,12 @@
 package com.example.myapplication;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.util.Log;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -121,6 +127,9 @@ public class Utils {
 
     public static void receiveFile(DataInputStream d_in, File file, long size) {
         try {
+            Log.d("receiveFile: ", file.getAbsolutePath()+file.exists());
+            ////////////
+
             FileOutputStream f_out = new FileOutputStream(file);
             byte[] buffer = new byte[4096];
 
@@ -139,8 +148,9 @@ public class Utils {
                 if (remaining < count) {
                     count = (int)remaining;
                 }
-                System.out.println(size + "------------------Download:" + totalRead + " bytes-----------" + file.getPath());
+                Log.d("receiveFile",size + "------------------Download:" + totalRead + " bytes-----------" + file.getPath());
                 f_out.write(buffer, 0, read);
+                Log.d("receiveFileString",buffer.toString());
             }
             f_out.close();
         } catch (IOException e) {
@@ -267,5 +277,7 @@ public class Utils {
             return (bitSize + 7) / 8 - 1;
         }
     }*/
+
 }
+
 
