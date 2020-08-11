@@ -112,12 +112,13 @@ public class PSIRSA implements PSI {
         byte[] ret = Utils.receiveBytes(socket);
         BigInteger y = Utils.bytesToBigInteger(ret, 0, ret.length);
         BigInteger z = y.multiply(blindFactor.modInverse(N)).mod(N);
+        Log.d("MainActivity-receiveAndParseResult","pub_N:"+N.toString());
         // BigInteger z = y.multiply(N).mod(N);
         //System.out.println(z.toString());
         byte[] result = Utils.bigIntegerToBytes(z, false);
 
         System.out.println("-----------------Time used:" + (System.currentTimeMillis() - startTime));
-        return Utils.readFileAndTest(result, DB, 128);
+        return Utils.readFileAndTest(result, DB, 256);
     }
 
     private BigInteger e;

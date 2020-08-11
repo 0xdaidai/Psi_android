@@ -14,8 +14,8 @@ import java.security.SecureRandom;
 public class PSIRSA implements PSI {
     private String s = "";
     public PSIRSA(int size) {
-        for (int i = 0; i < 120; i ++)
-            s += "a";
+//        for (int i = 0; i < 120; i ++)
+//            s += "a";
 
 		// Make blooms;
         // This event should only occur once, and then only when it is updated。
@@ -30,7 +30,8 @@ public class PSIRSA implements PSI {
 		
 		DB = new File("./DB_RSA");
 		long startTime = System.currentTimeMillis();
-		generateDB(size);		
+		generateDB(size);
+		System.out.println("Generate DB size = "+size);
 		
 		System.out.println("-----------------Time used:" + (System.currentTimeMillis() - startTime));
     }
@@ -79,7 +80,10 @@ public class PSIRSA implements PSI {
         try {
             RSAPrivateCrtKeyParameters sk = (RSAPrivateCrtKeyParameters)keyPair.getPrivate();
             BigInteger N = sk.getModulus();
+            System.out.println("when sign,N = "+N.toString());
             BigInteger d = sk.getExponent();
+            System.out.println("Key-d:"+d.toString());
+
             BigInteger x = Utils.bytesToBigInteger(query, 0, query.length);
             // System.out.println(x.toString(16));
             BigInteger y = x.modPow(d, N);
@@ -108,6 +112,7 @@ public class PSIRSA implements PSI {
     private void generateDB(int size) {
         RSAPrivateCrtKeyParameters sk = (RSAPrivateCrtKeyParameters)keyPair.getPrivate();
         BigInteger N = sk.getModulus();
+        System.out.println("pubN: "+N.toString());
         BigInteger d = sk.getExponent();
         System.out.println(d.toString());
         System.out.println("building DB...");

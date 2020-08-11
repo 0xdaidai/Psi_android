@@ -1,13 +1,6 @@
 package com.example.myapplication;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -15,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -32,6 +24,12 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.myapplication.bloom.Bloom;
 import com.example.myapplication.bloom.BloomIO;
@@ -93,6 +91,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
                 .detectLeakedSqlLiteObjects().detectLeakedClosableObjects()
                 .penaltyLog().penaltyDeath().build());
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+        }
         //////////////
         super.onCreate(savedInstanceState);
 
@@ -126,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Toast.makeText(MainActivity.this, "Please load DB first!", Toast.LENGTH_SHORT).show();
                 } else if (msg.arg1 == TOAST_Malware) {
                     Toast.makeText(MainActivity.this, "This is a malware!!!", Toast.LENGTH_SHORT).show();
-                    Log.d("MainActivity-RESULT FOR PSI","Yes I hava found one! at least");
                 } else if (msg.arg1 == TOAST_NOT_Malware) {
                     Toast.makeText(MainActivity.this, "This is a secure APP!", Toast.LENGTH_SHORT).show();
                 }
@@ -443,7 +444,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 while ((app = reader.readLine()) != null) {
                     Log.d("MainActivity-onlinePhase","QUERY: "+app);
                     callServer(app, "QUERY");
-                    for(int time = 0;time<500;time++);/////////////////////////
+                    //for(int time = 0;time<500;time++);/////////////////////////
+                    //break;
                 }
             }
 
@@ -472,8 +474,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //callMainThread(TOAST_DB_loaded);
             } else if (type.equals("QUERY")) {
                 if (psi.sendQuery(app, socket)) {
+                    Log.d("MainActivity-RESULT FOR PSI","Yes I hava found one! at least");
                     callMainThread(TOAST_Malware);
                 } else {
+                    Log.d("MainActivity-RESULT FOR PSI","No this is not!");
                     callMainThread(TOAST_NOT_Malware);
                 }
             }

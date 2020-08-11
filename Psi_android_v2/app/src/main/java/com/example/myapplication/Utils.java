@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -36,8 +37,10 @@ import java.util.List;
 public class Utils {
 
     public static boolean readFileAndTest(byte[] result, File file, int buffer_size) {
+        Log.d("PSIRSA-readFileAndTest","lineDB for result:"+ result.toString());
         try {
-            FileInputStream f_in = new FileInputStream(file);
+            FileInputStream f = new FileInputStream(file);
+            BufferedInputStream f_in = new BufferedInputStream(f);
             byte[] buffer = new byte[buffer_size];
 
             int i = 0;
@@ -45,6 +48,8 @@ public class Utils {
                 //		System.out.println(bytesToBigInteger(buffer, 0, buffer_size).toString(16));
 
                 i ++;
+                Log.d("PSIRSA-readFileAndTest","lineDB:"+bytesToBigInteger(buffer, 0, buffer_size).toString());
+                Log.d("PSIRSA-readFileAndTest","lineDB i:"+i);
                 if (Arrays.equals(result, buffer))
                 {
                     f_in.close();

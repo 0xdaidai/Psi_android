@@ -23,8 +23,9 @@ import java.util.Arrays;
 public class Utils {
 
     private static BufferedOutputStream out = null;
-
+    private static int i = 0;
     public static void writeLineToFile(File file, byte[] line, int begin, int end) {
+
         if (begin == 0) {
             try {
                 out = new BufferedOutputStream(new FileOutputStream(file));
@@ -34,7 +35,10 @@ public class Utils {
         }
 
         try {
+            i++;
             out.write(line);
+            System.out.println("lineDB i: "+i);
+            System.out.println("lineDB: "+ bytesToBigInteger(line,0,line.length).toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
