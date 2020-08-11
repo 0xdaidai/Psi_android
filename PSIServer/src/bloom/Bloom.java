@@ -1,4 +1,4 @@
-package com.example.myapplication.bloom;
+package bloom;
 
 /**
  * @author: kascas

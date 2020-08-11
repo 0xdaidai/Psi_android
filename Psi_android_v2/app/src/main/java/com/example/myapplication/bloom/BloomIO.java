@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -69,4 +70,34 @@ public class BloomIO {
         Log.d("bloomReader: ", jsonStr);
         return gson.fromJson(jsonStr, Bloom.class);
     }
+
+    public static Bloom bloomReader(File file) {
+        Gson gson = new Gson();
+        String line = null, jsonStr;
+        StringBuilder jsonStrBuilder = new StringBuilder();
+        FileReader fr = null;
+        BufferedReader br = null;
+        try {
+            fr = new FileReader(file);
+            br = new BufferedReader(fr);
+            while ((line = br.readLine()) != null) {
+                jsonStrBuilder.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (br != null)
+                    br.close();
+                if (fr != null)
+                    fr.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        jsonStr = jsonStrBuilder.toString();
+        Log.d("bloomReader: ", jsonStr);
+        return gson.fromJson(jsonStr, Bloom.class);
+    }
+
 }

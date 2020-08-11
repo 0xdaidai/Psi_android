@@ -1,3 +1,4 @@
+import bloom.Bloom;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
 import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
@@ -28,7 +29,8 @@ public class PSIRSA implements PSI {
 //		System.out.println(e.toString());
 //		System.out.println(N.toString());
 		
-		DB = new File("./DB_RSA");
+		//DB = new File("./DB_RSA");
+        DB = new File("bloom.json");
 		long startTime = System.currentTimeMillis();
 		generateDB(size);
 		System.out.println("Generate DB size = "+size);
@@ -109,6 +111,8 @@ public class PSIRSA implements PSI {
         keyPair = gen.generateKeyPair();
     }
 
+    /*
+    // just DB
     private void generateDB(int size) {
         RSAPrivateCrtKeyParameters sk = (RSAPrivateCrtKeyParameters)keyPair.getPrivate();
         BigInteger N = sk.getModulus();
@@ -124,13 +128,37 @@ public class PSIRSA implements PSI {
             //BigInteger h = new BigInteger(s+String.format("%08d",i),10);
             System.out.println(h.toString());
             BigInteger z = h.modPow(d, N);
-	/*	   	bug: data change after writting to a file
-	  		if (i == 123) {
-		   		System.out.println(z.toString());
-		   	}*/
-            //System.out.println(Utils.bigIntegerToBytes(z, false).length);
+
             Utils.writeLineToFile(DB, Utils.bigIntegerToBytes(z, false), i, size);
         }
-        //	Utils.readFileAndTest((new byte[128]), DB, 128);
+
+    }
+
+     */
+
+    private void generateDB(int size) {
+        Bloom bloom1 = new Bloom();
+        bloom1.bloom_init(1000, 0.001);
+
+        RSAPrivateCrtKeyParameters sk = (RSAPrivateCrtKeyParameters)keyPair.getPrivate();
+        BigInteger N = sk.getModulus();
+        System.out.println("pubN: "+N.toString());
+        BigInteger d = sk.getExponent();
+        System.out.println(d.toString());
+        System.out.println("building DB...");
+        System.out.println("size: "+ size);
+
+        for (int i = 0; i < size; i ++) {
+            String s = new String("136");
+            BigInteger h = Utils.stringToBigInteger(s+String.format("%08d",i));
+            //BigInteger h = new BigInteger(s+String.format("%08d",i),10);
+            System.out.println(h.toString());
+            BigInteger z = h.modPow(d, N);
+
+            //Utils.writeLineToFile(DB, Utils.bigIntegerToBytes(z, false), i, size);
+            bloom1.bloom_add(Utils.bigIntegerToBytes(z, false));
+        }
+        Utils.bloomWriter(bloom1, "bloom.json");
+
     }
 }

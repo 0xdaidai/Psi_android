@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 检查数据的更新
         getUpdate();
         // 测试
-        test();
+        //test();
 
         handler = new Handler(Looper.getMainLooper()) {
             @Override

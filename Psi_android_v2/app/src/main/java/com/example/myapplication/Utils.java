@@ -7,6 +7,9 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
 
+import com.example.myapplication.bloom.Bloom;
+import com.example.myapplication.bloom.BloomIO;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -36,6 +39,18 @@ import java.util.List;
 
 public class Utils {
 
+    public static boolean readBloomAndTest(byte[] result, File file) {
+        Log.d("PSIRSA-readFileAndTest","lineDB for result:"+ result.toString());
+
+        Bloom bloom2 = BloomIO.bloomReader(file);
+  
+        boolean b = false;
+        if (bloom2.bloom_check(result)) b = true;
+
+        return b;
+    }
+
+    // for DB
     public static boolean readFileAndTest(byte[] result, File file, int buffer_size) {
         Log.d("PSIRSA-readFileAndTest","lineDB for result:"+ result.toString());
         try {
