@@ -1,4 +1,5 @@
 import bloom.Bloom;
+import com.github.mgunlogson.cuckoofilter4j.CuckooFilter;
 import com.google.gson.Gson;
 
 import java.io.*;
@@ -193,6 +194,53 @@ public class Utils {
         return output;
     }
 
+    public static void cuckooWriter(CuckooFilter<byte[]> filter, File file) {
+        ObjectOutputStream out = null;
+        FileOutputStream f_out = null;
+        try {
+            f_out = new FileOutputStream(file);
+            out = new ObjectOutputStream(f_out);
+            out.writeObject(filter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if(out != null)
+                    out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public static CuckooFilter cuckooReader(File file) {
+        FileInputStream fileIn = null;
+        ObjectInputStream in = null;
+        CuckooFilter filter = null;
+        try {
+            fileIn = new FileInputStream(file);
+            in = new ObjectInputStream(fileIn);
+            filter =  (CuckooFilter<byte[]>)in.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if(in != null)
+                    in.close();
+                if(fileIn != null)
+                    fileIn.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return filter;
+    }
+
+    /*
+    // bloomIO
     public static void bloomWriter(Bloom bloom, String file) {
         Gson gson = new Gson();
         String jsonStr = gson.toJson(bloom);
@@ -245,6 +293,8 @@ public class Utils {
 
         return gson.fromJson(jsonStr, Bloom.class);
     }
+
+     */
 
 /*
 	public static int getOutputBlockSize(boolean forEncryption) {

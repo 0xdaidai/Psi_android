@@ -16,7 +16,7 @@ import java.io.IOException;
  * @date: 2020/8/8-23:31
  * @description:
  */
-public class BloomIO {
+public class BloomIO {/*
 
     public static void bloomWriter(Bloom bloom, String file) {
         Gson gson = new Gson();
@@ -98,6 +98,6 @@ public class BloomIO {
         jsonStr = jsonStrBuilder.toString();
         Log.d("bloomReader: ", jsonStr);
         return gson.fromJson(jsonStr, Bloom.class);
-    }
+    }*/
 
 }

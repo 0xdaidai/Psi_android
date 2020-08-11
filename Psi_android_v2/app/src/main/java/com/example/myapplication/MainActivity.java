@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         msg.arg1 = arg;
         handler.sendMessage(msg);
     }
-
+/*
     public void test() {
         Bloom bloom1 = new Bloom();
         bloom1.bloom_init(1000, 0.001);
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Bloom bloom2 = BloomIO.bloomReader(rootDir + "/bloom.json");
         System.out.println(rootDir);
         System.out.println(bloom2.bloom_check("lxp"));
-    }
+    }*/
 
     @Override
     public void onClick(View view) {

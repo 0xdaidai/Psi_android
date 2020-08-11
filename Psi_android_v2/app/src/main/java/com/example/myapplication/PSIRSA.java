@@ -118,7 +118,7 @@ public class PSIRSA implements PSI {
         byte[] result = Utils.bigIntegerToBytes(z, false);
 
         System.out.println("-----------------Time used:" + (System.currentTimeMillis() - startTime));
-        return Utils.readBloomAndTest(result, DB);
+        return Utils.readCuckooAndTest(result, DB);
     }
 
     private BigInteger e;

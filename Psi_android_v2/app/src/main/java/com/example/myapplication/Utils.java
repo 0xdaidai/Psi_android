@@ -9,6 +9,8 @@ import android.util.Log;
 
 import com.example.myapplication.bloom.Bloom;
 import com.example.myapplication.bloom.BloomIO;
+import com.github.mgunlogson.cuckoofilter4j.CuckooFilter;
+import com.google.common.hash.Funnels;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -38,12 +40,25 @@ import java.util.Collections;
 import java.util.List;
 
 public class Utils {
+    static CuckooFilter filter = null;
 
+    public static boolean readCuckooAndTest(byte[] result, File file) {
+        Log.d("PSIRSA-readFileAndTest","lineDB for result:"+ result.toString());
+        boolean b = false;
+        if(filter == null)
+            filter = cuckooReader(file);
+        if (filter.mightContain(result)) b = true;
+
+        return b;
+    }
+
+    /*
+    // for bloom
     public static boolean readBloomAndTest(byte[] result, File file) {
         Log.d("PSIRSA-readFileAndTest","lineDB for result:"+ result.toString());
 
         Bloom bloom2 = BloomIO.bloomReader(file);
-  
+
         boolean b = false;
         if (bloom2.bloom_check(result)) b = true;
 
@@ -77,6 +92,8 @@ public class Utils {
         }
         return false;
     }
+
+     */
 
     public static void sendBytes(Socket socket, byte[] bytes) {
         try {
@@ -286,6 +303,49 @@ public class Utils {
             }
         } catch (Exception ex) { } // for now eat exceptions
         return "";
+    }
+
+    public static void cuckooWriter(CuckooFilter<byte[]> filter, File file) {
+        ObjectOutputStream out = null;
+        try {
+            out = new ObjectOutputStream(new FileOutputStream(file));
+            out.writeObject(filter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if(out != null)
+                    out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public static CuckooFilter cuckooReader(File file) {
+        FileInputStream fileIn = null;
+        ObjectInputStream in = null;
+        CuckooFilter filter = null;
+        try {
+            fileIn = new FileInputStream(file);
+            in = new ObjectInputStream(fileIn);
+            filter =  (CuckooFilter<byte[]>)in.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if(in != null)
+                    in.close();
+                if(fileIn != null)
+                    fileIn.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return filter;
     }
 /*
 	public static int getOutputBlockSize(boolean forEncryption) {

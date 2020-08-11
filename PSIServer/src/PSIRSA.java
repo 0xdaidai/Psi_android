@@ -1,4 +1,6 @@
 import bloom.Bloom;
+import com.github.mgunlogson.cuckoofilter4j.CuckooFilter;
+import com.google.common.hash.Funnels;
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
 import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
@@ -136,6 +138,8 @@ public class PSIRSA implements PSI {
 
      */
 
+    /*
+    // bloom
     private void generateDB(int size) {
         Bloom bloom1 = new Bloom();
         bloom1.bloom_init(1000, 0.001);
@@ -159,6 +163,32 @@ public class PSIRSA implements PSI {
             bloom1.bloom_add(Utils.bigIntegerToBytes(z, false));
         }
         Utils.bloomWriter(bloom1, "bloom.json");
+
+    }
+    */
+
+    private void generateDB(int size) {
+        CuckooFilter<byte[]> filter = new CuckooFilter.Builder<>(Funnels.byteArrayFunnel(), (size*1000)>2000000?(size*1000):2000000).build();
+
+        RSAPrivateCrtKeyParameters sk = (RSAPrivateCrtKeyParameters)keyPair.getPrivate();
+        BigInteger N = sk.getModulus();
+        System.out.println("pubN: "+N.toString());
+        BigInteger d = sk.getExponent();
+        System.out.println(d.toString());
+        System.out.println("building DB...");
+        System.out.println("size: "+ size);
+
+        for (int i = 0; i < size; i ++) {
+            String s = new String("136");
+            BigInteger h = Utils.stringToBigInteger(s+String.format("%08d",i));
+            //BigInteger h = new BigInteger(s+String.format("%08d",i),10);
+            System.out.println(h.toString());
+            BigInteger z = h.modPow(d, N);
+
+            //Utils.writeLineToFile(DB, Utils.bigIntegerToBytes(z, false), i, size);
+            filter.put(Utils.bigIntegerToBytes(z,false));
+        }
+        Utils.cuckooWriter(filter,new File("bloom.json"));
 
     }
 }
