@@ -110,6 +110,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Log.d("MainActivity-Oncreate","new psi,dir is:"+rootDir);
         psi = new PSIRSA(rootDir);
+
+        try {
+            inetAddress = InetAddress.getByName(IP);
+            Log.d("MainActivity-onCreate","inetAddress:"+inetAddress.toString());
+            socket = new Socket(inetAddress, PORT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         // base准备
         basePhase();
         // 检查数据的更新
@@ -435,9 +443,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             File file = new File(rootDir+"/phonenum.txt");
             if(file.exists() && file.length() == 0) {
                 Log.d("MainActivity-onlinePhase","open file failed!");
-                callMainThread(TOAST_APP_empty);
+                //callMainThread(TOAST_APP_empty);
             } else if (psi.getDBSize() == 0) {
-                callMainThread(TOAST_DB_empty);
+                //callMainThread(TOAST_DB_empty);
             } else{
                 in = new FileInputStream(file);
                 reader = new BufferedReader(new InputStreamReader(in));
@@ -463,10 +471,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void callServer(String app, String type) {
-        try {
-            inetAddress = InetAddress.getByName(IP);
-            Log.d("MainActivity-callServer","inetAddress:"+inetAddress.toString());
-            socket = new Socket(inetAddress, PORT);
+        /*try {*/
+//            inetAddress = InetAddress.getByName(IP);
+//            Log.d("MainActivity-callServer","inetAddress:"+inetAddress.toString());
+//            socket = new Socket(inetAddress, PORT);
             Utils.sendString(socket, type);
             if (type.equals("DB")) {
                 //callMainThread(TOAST_DB_loaded);
@@ -482,11 +490,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
             //Utils.sendString(socket, "END");
+            /*
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } /*finally {
+        } */
+        /*finally {
+
             if( socket != null){
                 try {
                     socket.close();
