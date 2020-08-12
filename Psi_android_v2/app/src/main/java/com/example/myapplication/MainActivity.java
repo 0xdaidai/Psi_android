@@ -14,13 +14,16 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.provider.Contacts;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,8 +34,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.myapplication.bloom.Bloom;
-import com.example.myapplication.bloom.BloomIO;
+//import com.example.myapplication.bloom.Bloom;
+//import com.example.myapplication.bloom.BloomIO;
 import com.example.myapplication.util.Rand;
 
 import java.io.BufferedReader;
@@ -47,9 +50,11 @@ import java.io.OutputStreamWriter;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
+//import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -64,9 +69,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SearchView searchView;
     private List<String> numList;
     private List<PhoneNumData> dataList;
-    private List<BigInteger> numIntList;
+    private List<String> resultList;
     private Button btn_logout;
     private String rootDir;
+    private Map<String, String> contact;
+    private ProgressBar progressBar;
+    private int progress = 0;
 
     private final String IP = "10.0.2.2";
     private final int PORT = 12345;
@@ -108,16 +116,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 活动初始化，包括控件的指定和设置监听等
         activityInit();
 
-        Log.d("MainActivity-Oncreate","new psi,dir is:"+rootDir);
+        Log.d("MainActivity-Oncreate", "new psi,dir is:" + rootDir);
         psi = new PSIRSA(rootDir);
-
-        try {
-            inetAddress = InetAddress.getByName(IP);
-            Log.d("MainActivity-onCreate","inetAddress:"+inetAddress.toString());
-            socket = new Socket(inetAddress, PORT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         // base准备
         basePhase();
         // 检查数据的更新
@@ -125,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 测试
         //test();
 
+        /*
         handler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
@@ -141,43 +142,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         };
+        */
+
     }
 
 
-
-    private void callMainThread (int arg) {
+    /*
+    private void callMainThread(int arg) {
         Message msg = handler.obtainMessage();
         msg.arg1 = arg;
         handler.sendMessage(msg);
-    }
-/*
-    public void test() {
-        Bloom bloom1 = new Bloom();
-        bloom1.bloom_init(1000, 0.001);
-        bloom1.bloom_add("lxp");
-        bloom1.bloom_add("wt");
-        BloomIO.bloomWriter(bloom1, rootDir + "/bloom.json");
-        Bloom bloom2 = BloomIO.bloomReader(rootDir + "/bloom.json");
-        System.out.println(rootDir);
-        System.out.println(bloom2.bloom_check("lxp"));
     }*/
+
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            /*
-            case (R.id.button_getKey): {
-                // 获取公钥
-                basePhase();
-                break;
-            }
-            */
             // 开始计算
             case (R.id.button_compute): {
-
                 // 开始计算
                 try {
+                    progressBar.setProgress(0);
                     onlinePhase();
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            this, android.R.layout.simple_list_item_1, resultList);
+                    listView.setAdapter(adapter);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -217,6 +206,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn_compute.setOnClickListener(this);
         btn_logout = findViewById(R.id.button_logout);
         btn_logout.setOnClickListener(this);
+        progressBar = findViewById(R.id.progressBar_compute);
+        progressBar.setMax(100);
+        progressBar.setProgress(0);
         // 从登录界面获取登录的手机号
         Intent intent = getIntent();
         phoneNum = intent.getStringExtra("phoneNum");
@@ -230,6 +222,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 this, android.R.layout.simple_list_item_1, numList);
         listView.setAdapter(adapter);
         listView.setTextFilterEnabled(true);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String num = (String) listView.getItemAtPosition(i);
+
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                alertDialog.setTitle("联系人信息");
+                alertDialog.setCancelable(true);
+                alertDialog.setMessage("    -  姓名：" + contact.get(num) + "\n    -  号码：" + num);
+                alertDialog.show();
+
+            }
+        });
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
@@ -282,13 +287,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setProgressDialog("", "数据初始化");
         dataList = new PhoneUtil(this).getPhone();
         numList = new ArrayList<>();
-        numIntList = new ArrayList<>();
+        contact = new HashMap<>();
         // 将所有联系人写入phonenum.txt
         String num = null;
         dataWriter("phonenum.txt", "", Context.MODE_PRIVATE);
         for (PhoneNumData data : dataList) {
             num = data.getNum().replace(" ", "").substring(3);
-            Log.d("MainActivity-dataInit","phonenum:"+num);
+            contact.put(num, data.getName());
+            Log.d("MainActivity-dataInit", "phonenum:" + num);
             numList.add(num);
             dataWriter("phonenum.txt", num + "\n", Context.MODE_APPEND);
         }
@@ -394,10 +400,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             rKeyGenerator();
             Log.d("主界面-dataInit", "rkey生成完毕");
         }
-
          */
+        try {
+            inetAddress = InetAddress.getByName(IP);
+            Log.d("MainActivity-callServer", "inetAddress:" + inetAddress.toString());
+            socket = new Socket(inetAddress, PORT);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        callServer(new String(""),"DB");
+        callServer(new String(""), "DB");
         deleteProgressDialog();
 
 
@@ -409,8 +421,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 测试
         SharedPreferences pref = getSharedPreferences("pub_key", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
-        editor.putString("pubkey_N", Utils.bytesToBigInteger(PK[1],0,PK[0].length).toString(16));
-        editor.putString("pubkey_E", Utils.bytesToBigInteger(PK[0],0,PK[0].length).toString(16));
+        editor.putString("pubkey_N", Utils.bytesToBigInteger(PK[1], 0, PK[0].length).toString(16));
+        editor.putString("pubkey_E", Utils.bytesToBigInteger(PK[0], 0, PK[0].length).toString(16));
         editor.apply();
 
     }
@@ -436,21 +448,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     // TODO: online阶段
     private void onlinePhase() throws IOException {
+        resultList = new ArrayList<>();
         String app;
         FileInputStream in = null;
         BufferedReader reader = null;
         try {
-            File file = new File(rootDir+"/phonenum.txt");
-            if(file.exists() && file.length() == 0) {
-                Log.d("MainActivity-onlinePhase","open file failed!");
+            File file = new File(rootDir + "/phonenum.txt");
+            if (file.exists() && file.length() == 0) {
+                Log.d("MainActivity-onlinePhase", "open file failed!");
                 //callMainThread(TOAST_APP_empty);
             } else if (psi.getDBSize() == 0) {
                 //callMainThread(TOAST_DB_empty);
-            } else{
+            } else {
                 in = new FileInputStream(file);
                 reader = new BufferedReader(new InputStreamReader(in));
                 while ((app = reader.readLine()) != null) {
-                    Log.d("MainActivity-onlinePhase","QUERY: "+app);
+                    Log.d("MainActivity-onlinePhase", "QUERY: " + app);
                     callServer(app, "QUERY");
                     //for(int time = 0;time<500;time++);/////////////////////////
                     //break;
@@ -462,55 +475,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if(reader != null)
+            if (reader != null)
                 reader.close();
-            if(in != null)
+            if (in != null)
                 in.close();
         }
 
     }
 
     public void callServer(String app, String type) {
-        /*try {*/
-//            inetAddress = InetAddress.getByName(IP);
-//            Log.d("MainActivity-callServer","inetAddress:"+inetAddress.toString());
-//            socket = new Socket(inetAddress, PORT);
-            Utils.sendString(socket, type);
-            if (type.equals("DB")) {
-                //callMainThread(TOAST_DB_loaded);
-                psi.downloadDB(socket);
-                //callMainThread(TOAST_DB_loaded);
-            } else if (type.equals("QUERY")) {
-                if (psi.sendQuery(app, socket)) {
-                    Log.d("MainActivity-RESULT FOR PSI","Yes I hava found one! at least");
-                    callMainThread(TOAST_Malware);
-                } else {
-                    Log.d("MainActivity-RESULT FOR PSI","No this is not!");
-                    callMainThread(TOAST_NOT_Malware);
-                }
+        //try {
+        //inetAddress = InetAddress.getByName(IP);
+        //Log.d("MainActivity-callServer", "inetAddress:" + inetAddress.toString());
+        //socket = new Socket(inetAddress, PORT);
+        Utils.sendString(socket, type);
+        if (type.equals("DB")) {
+            //callMainThread(TOAST_DB_loaded);
+            psi.downloadDB(socket);
+            //callMainThread(TOAST_DB_loaded);
+        } else if (type.equals("QUERY")) {
+            progress++;
+            progressBar.setProgress(progress * 100 / numList.size());
+            if (psi.sendQuery(app, socket)) {
+                Log.d("MainActivity-RESULT FOR PSI", "Yes I hava found one! at least");
+                //callMainThread(TOAST_Malware);
+                resultList.add(app);
+            } else {
+                Log.d("MainActivity-RESULT FOR PSI", "No this is not!");
+                //callMainThread(TOAST_NOT_Malware);
             }
-            //Utils.sendString(socket, "END");
-            /*
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } */
-        /*finally {
-
-            if( socket != null){
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }*/
+        }
+        //Utils.sendString(socket, "END");
+        //} catch (UnknownHostException e) {
+        //    e.printStackTrace();
+        //} catch (IOException e) {
+        //    e.printStackTrace();
+        //} /*finally {
+        //    if( socket != null){
+        //        try {
+        //            socket.close();
+        //        } catch (IOException e) {
+        //            e.printStackTrace();
+        //        }
+        //    }
+        //}*/
     }
 
-    public void byeServer(){
+    public void byeServer() {
         Utils.sendString(socket, "END");
-        if( socket != null){
+        if (socket != null) {
             try {
                 socket.close();
             } catch (IOException e) {
@@ -530,7 +543,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         FileOutputStream out = null;
         BufferedWriter writer = null;
-        Log.d("MainActivity-DataWriter",filename);
+        Log.d("MainActivity-DataWriter", filename);
         try {
             if (mode == Context.MODE_APPEND) {
                 out = openFileOutput(filename, Context.MODE_APPEND);
@@ -592,4 +605,3 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 }
-
