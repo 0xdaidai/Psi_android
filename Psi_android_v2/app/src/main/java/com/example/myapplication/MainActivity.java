@@ -34,8 +34,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-//import com.example.myapplication.bloom.Bloom;
-//import com.example.myapplication.bloom.BloomIO;
+import com.example.myapplication.bloom.Bloom;
+import com.example.myapplication.bloom.BloomIO;
 import com.example.myapplication.util.Rand;
 
 import java.io.BufferedReader;
@@ -50,7 +50,7 @@ import java.io.OutputStreamWriter;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.Socket;
-//import java.net.UnknownHostException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private final int TOAST_DB_empty = 3;
     private final int TOAST_Malware = 4;
     private final int TOAST_NOT_Malware = 5;
+    private final int ONLINE_FINISH = 6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // 测试
         //test();
 
-        /*
+
         handler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
@@ -139,20 +140,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Toast.makeText(MainActivity.this, "This is a malware!!!", Toast.LENGTH_SHORT).show();
                 } else if (msg.arg1 == TOAST_NOT_Malware) {
                     Toast.makeText(MainActivity.this, "This is a secure APP!", Toast.LENGTH_SHORT).show();
+                } else if (msg.arg1 == ONLINE_FINISH) {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            MainActivity.this, android.R.layout.simple_list_item_1, resultList);
+                    listView.setAdapter(adapter);
                 }
             }
         };
-        */
+
 
     }
 
 
-    /*
     private void callMainThread(int arg) {
         Message msg = handler.obtainMessage();
         msg.arg1 = arg;
         handler.sendMessage(msg);
-    }*/
+    }
 
 
     @Override
@@ -161,15 +165,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // 开始计算
             case (R.id.button_compute): {
                 // 开始计算
-                try {
-                    progressBar.setProgress(0);
-                    onlinePhase();
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                            this, android.R.layout.simple_list_item_1, resultList);
-                    listView.setAdapter(adapter);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+
+                resultList = new ArrayList<>();
+                progressBar.setProgress(0);
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            onlinePhase();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        callMainThread(ONLINE_FINISH);
+                    }
+                });
+                thread.start();
                 break;
             }
             // 退出登录
@@ -400,6 +410,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             rKeyGenerator();
             Log.d("主界面-dataInit", "rkey生成完毕");
         }
+
          */
         try {
             inetAddress = InetAddress.getByName(IP);
@@ -448,7 +459,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     // TODO: online阶段
     private void onlinePhase() throws IOException {
-        resultList = new ArrayList<>();
         String app;
         FileInputStream in = null;
         BufferedReader reader = null;
