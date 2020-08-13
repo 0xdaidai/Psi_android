@@ -117,7 +117,7 @@ public class PSIRSA implements PSI {
         //System.out.println(z.toString());
         byte[] result = Utils.bigIntegerToBytes(z, false);
 
-        System.out.println("-----------------Time used:" + (System.currentTimeMillis() - startTime));
+        //System.out.println("-----------------Time used:" + (System.currentTimeMillis() - startTime));
         return Utils.readCuckooAndTest(result, DB);
     }
 

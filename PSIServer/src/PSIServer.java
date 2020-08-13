@@ -8,7 +8,7 @@ public class PSIServer {
     private static InetAddress inetAddress;
 
     //private static final int DB_SIZE = (int)Math.pow(2, 15);
-    private static final int DB_SIZE = (int)Math.pow(2, 10);
+    private static final int DB_SIZE = (int)Math.pow(2, 20);
 
     public static void main(String[] args) {
         psi = new PSIRSA(DB_SIZE);
@@ -24,7 +24,7 @@ public class PSIServer {
             while(true){
                 System.out.println("Listening!");
                 Socket socket = serverSocket.accept();// listen PORT;
-                System.out.println("Listen up!");
+                //System.out.println("Listen up!");
                 new ServerOne(socket, psi);
             }
         } catch (IOException e) {

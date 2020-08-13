@@ -45,6 +45,7 @@ public class Utils {
     public static void sendBytes(Socket socket, byte[] bytes) {
         try {
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            System.out.println("Send bytes[] length: "+bytes.length);
             out.writeObject(bytes);
         } catch (IOException e) {
             e.printStackTrace();
@@ -56,6 +57,7 @@ public class Utils {
         try {
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
             bytes = (byte[])in.readObject();
+            System.out.println("Receive bytes[] length: "+bytes.length);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
@@ -68,6 +70,7 @@ public class Utils {
     public static void send2DBytes(Socket socket, byte[][] bytes) {
         try {
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            System.out.println("Send 2dbytes[] length: "+bytes.length);
             out.writeObject(bytes);
         } catch (IOException e) {
             e.printStackTrace();
@@ -77,6 +80,7 @@ public class Utils {
     public static void sendInteger(DataOutputStream d_out, long integer) {
         try {
             d_out.writeLong(integer);
+            System.out.println("Send integer length: 8");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -105,12 +109,14 @@ public class Utils {
     public static void sendFile(DataOutputStream d_out, File file) {
         try {
             FileInputStream f_in = new FileInputStream(file);
-
+            int all = 0;
             byte[] buffer = new byte[4096];
             int read = 0;
             while ((read = (f_in.read(buffer))) > 0) {
                 d_out.write(buffer, 0, read);
+                all += read;
             }
+            System.out .println("Send file length: "+all);
             f_in.close();
             d_out.flush();
             //		dos.close();

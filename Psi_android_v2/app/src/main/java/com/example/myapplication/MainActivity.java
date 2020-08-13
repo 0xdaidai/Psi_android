@@ -472,12 +472,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             } else {
                 in = new FileInputStream(file);
                 reader = new BufferedReader(new InputStreamReader(in));
+                long startTime = System.currentTimeMillis();
                 while ((app = reader.readLine()) != null) {
                     Log.d("MainActivity-onlinePhase", "QUERY: " + app);
                     callServer(app, "QUERY");
                     //for(int time = 0;time<500;time++);/////////////////////////
                     //break;
                 }
+                Log.d("MainActivity-onlinePhase","-----------------Time used:" + (System.currentTimeMillis() - startTime));
             }
 
         } catch (FileNotFoundException e) {

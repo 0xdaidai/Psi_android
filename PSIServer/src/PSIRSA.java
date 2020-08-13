@@ -84,9 +84,9 @@ public class PSIRSA implements PSI {
         try {
             RSAPrivateCrtKeyParameters sk = (RSAPrivateCrtKeyParameters)keyPair.getPrivate();
             BigInteger N = sk.getModulus();
-            System.out.println("when sign,N = "+N.toString());
+            //System.out.println("when sign,N = "+N.toString());
             BigInteger d = sk.getExponent();
-            System.out.println("Key-d:"+d.toString());
+            //System.out.println("Key-d:"+d.toString());
 
             BigInteger x = Utils.bytesToBigInteger(query, 0, query.length);
             // System.out.println(x.toString(16));
@@ -168,11 +168,11 @@ public class PSIRSA implements PSI {
     */
 
     private void generateDB(int size) {
-        CuckooFilter<byte[]> filter = new CuckooFilter.Builder<>(Funnels.byteArrayFunnel(), (size*1000)>2000000?(size*1000):2000000).build();
+        CuckooFilter<byte[]> filter = new CuckooFilter.Builder<>(Funnels.byteArrayFunnel(), (size*10)>2000000?(size*10):2000000).build();
 
         RSAPrivateCrtKeyParameters sk = (RSAPrivateCrtKeyParameters)keyPair.getPrivate();
         BigInteger N = sk.getModulus();
-        System.out.println("pubN: "+N.toString());
+        //System.out.println("pubN: "+N.toString());
         BigInteger d = sk.getExponent();
         System.out.println(d.toString());
         System.out.println("building DB...");
@@ -182,7 +182,7 @@ public class PSIRSA implements PSI {
             String s = new String("136");
             BigInteger h = Utils.stringToBigInteger(s+String.format("%08d",i));
             //BigInteger h = new BigInteger(s+String.format("%08d",i),10);
-            System.out.println(h.toString());
+            //System.out.println(h.toString());
             BigInteger z = h.modPow(d, N);
 
             //Utils.writeLineToFile(DB, Utils.bigIntegerToBytes(z, false), i, size);
